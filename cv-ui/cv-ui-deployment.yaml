@@ -15,6 +15,7 @@ spec:
     spec:
       containers:
         - image: rryter/cv-reto:latest
+          imagePullPolicy: Always
           name: cv-ui
           ports:
             - containerPort: 80
