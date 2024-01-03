@@ -3,13 +3,13 @@ kind: Ingress
 metadata:
   name: cv-ui-ingress
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    kubernetes.io/ingress.class: "nginx"
 spec:
-  ingressClassName: nginx
-  # tls:
-  #   - hosts:
-  #       - cv.k8s.twy.gmbh
-  #     secretName: cv-tls-prod
+  tls:
+    - hosts:
+        - cv.k8s.twy.gmbh
+      secretName: cv-k8s-twy-gmbh
   rules:
     - host: cv.k8s.twy.gmbh
       http:
