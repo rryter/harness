@@ -4,10 +4,7 @@ metadata:
   name: cv-ui-ingress
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/server-snippet: |
-      if ($request_uri !~* ^/.well-known) {
-        return 301 $scheme://my.site.com$request_uri;
-      }
+    cert-manager.io/issue-temp-cert: true
 spec:
   ingressClassName: nginx
   tls:
