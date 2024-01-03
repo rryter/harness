@@ -4,6 +4,7 @@ metadata:
   name: cv-ui-ingress
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/issue-temporary-certificate: "true"
 spec:
   ingressClassName: nginx
   tls:
