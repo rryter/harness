@@ -8,10 +8,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - cv.k8s.twy.gmbh
-      secretName: cv-k8s-twy-gmbh
+        - reto.k8s.twy.gmbh
+      secretName: reto-k8s-twy-gmbh
   rules:
-    - host: cv.k8s.twy.gmbh
+    - host: reto.k8s.twy.gmbh
       http:
         paths:
           - path: "/"
