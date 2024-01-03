@@ -6,9 +6,13 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - cv.k8s.twy.gmbh
+      secretName: cv-tls
   rules:
     - host: cv.k8s.twy.gmbh
-    - http:
+      http:
         paths:
           - path: /
             pathType: Prefix
@@ -17,6 +21,3 @@ spec:
                 name: cv-ui
                 port:
                   number: 80
-  tls:
-    - hosts:
-        - cv.k8s.twy.gmbh
