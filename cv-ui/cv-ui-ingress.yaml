@@ -6,10 +6,10 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: nginx
-  # tls:
-  #   - hosts:
-  #       - cv.k8s.twy.gmbh
-  #     secretName: cv-tls
+  tls:
+    - hosts:
+        - cv.k8s.twy.gmbh
+      secretName: cv-tls
   rules:
     - host: cv.k8s.twy.gmbh
       http:
