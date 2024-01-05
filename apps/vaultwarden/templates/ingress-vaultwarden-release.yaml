@@ -14,6 +14,8 @@ metadata:
   annotations:
     ingress.kubernetes.io/rewrite-target: /
     ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/configuration-snippet: |
       more_set_headers "Request-Id: $req_id";
     nginx.ingress.kubernetes.io/connection-proxy-header: "keep-alive"
@@ -31,7 +33,7 @@ spec:
   tls:
     - hosts:
         - "vaultwarden.k8s.twy.gmbh"
-      secretName: 
+      secretName: vaultwarden-tls-secret
   rules:
     - host: "vaultwarden.k8s.twy.gmbh"
       http:
