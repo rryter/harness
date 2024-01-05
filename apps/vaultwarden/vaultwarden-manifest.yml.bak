@@ -1,0 +1,297 @@
+---
+# Source: vaultwarden/templates/rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vaultwarden-svc
+  namespace: vaultwarden
+  labels:
+    app.kubernetes.io/component: vaultwarden
+    helm.sh/chart: vaultwarden-0.19.0
+    app.kubernetes.io/name: vaultwarden
+    app.kubernetes.io/instance: vaultwarden-release
+    app.kubernetes.io/version: "1.30.1"
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: vaultwarden/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vaultwarden-release
+  namespace: vaultwarden
+  labels:
+    app.kubernetes.io/component: vaultwarden
+    helm.sh/chart: vaultwarden-0.19.0
+    app.kubernetes.io/name: vaultwarden
+    app.kubernetes.io/instance: vaultwarden-release
+    app.kubernetes.io/version: "1.30.1"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  SMTP_PASSWORD: ""
+  SMTP_USERNAME: ""
+  ADMIN_TOKEN: "JGFyZ29uMmlkJHY9MTkkbT0xOTQ1Nix0PTIscD0xJFZreDFWa0U0Um1oRE1VaHdObTlZVmxoUFFrVk9aazFZYzFkdVNEZEdSVll6ZDBZNVprZ3dhVmcwWXowJFBLK2gxQU5DYnp6bUVLYWlRZkNqV3craFdGYU1LdkxoRzJQalJhbkg1S2s="
+---
+# Source: vaultwarden/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vaultwarden-release
+  namespace: vaultwarden
+  labels:
+    app.kubernetes.io/component: vaultwarden
+    helm.sh/chart: vaultwarden-0.19.0
+    app.kubernetes.io/name: vaultwarden
+    app.kubernetes.io/instance: vaultwarden-release
+    app.kubernetes.io/version: "1.30.1"
+    app.kubernetes.io/managed-by: Helm
+data:
+  DOMAIN: "https://vaultwarden.k8s.twy.gmbh"
+  WEBSOCKET_ENABLED: "true"
+  WEBSOCKET_ADDRESS: "0.0.0.0"
+  WEBSOCKET_PORT: "3012"
+  DATA_FOLDER: "/data"
+  ROCKET_ADDRESS: "0.0.0.0"
+  ROCKET_PORT: "8080"
+  ROCKET_WORKERS: "10"
+  SHOW_PASSWORD_HINT: "false"
+  SIGNUPS_ALLOWED: "true"
+  INVITATIONS_ALLOWED: "true"
+  SIGNUPS_VERIFY: "true"
+  WEB_VAULT_ENABLED: "true"
+  DB_CONNECTION_RETRIES: "15"
+  DATABASE_MAX_CONNS: "10"
+  INVITATION_ORG_NAME: "Vaultwarden"
+  ICON_BLACKLIST_NON_GLOBAL_IPS: "true"
+  IP_HEADER: "X-Real-IP"
+---
+# Source: vaultwarden/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vaultwarden-release
+  namespace: vaultwarden
+  labels:
+    app.kubernetes.io/component: vaultwarden
+    helm.sh/chart: vaultwarden-0.19.0
+    app.kubernetes.io/name: vaultwarden
+    app.kubernetes.io/instance: vaultwarden-release
+    app.kubernetes.io/version: "1.30.1"
+    app.kubernetes.io/managed-by: Helm
+rules:
+  - apiGroups: ["extensions", "apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["create","delete","get","list","patch","update","watch"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create","delete","get","list","patch","update","watch"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get","list","watch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get"]
+---
+# Source: vaultwarden/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vaultwarden-release
+  namespace: vaultwarden
+  labels:
+    app.kubernetes.io/component: vaultwarden
+    helm.sh/chart: vaultwarden-0.19.0
+    app.kubernetes.io/name: vaultwarden
+    app.kubernetes.io/instance: vaultwarden-release
+    app.kubernetes.io/version: "1.30.1"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: vaultwarden-release
+subjects:
+- kind: ServiceAccount
+  name: vaultwarden-svc
+---
+# Source: vaultwarden/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: vaultwarden-release
+  namespace: vaultwarden
+  labels:
+    app.kubernetes.io/component: vaultwarden
+    helm.sh/chart: vaultwarden-0.19.0
+    app.kubernetes.io/name: vaultwarden
+    app.kubernetes.io/instance: vaultwarden-release
+    app.kubernetes.io/version: "1.30.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: "ClusterIP"
+  selector:
+    app.kubernetes.io/component: vaultwarden
+  ports:
+    - name: "http"
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+    - name: "websocket"
+      port: 3012
+      protocol: TCP
+      targetPort: 3012
+  ipFamilyPolicy: SingleStack
+---
+# Source: vaultwarden/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vaultwarden-release
+  namespace: vaultwarden
+  labels:
+    app.kubernetes.io/component: vaultwarden
+    helm.sh/chart: vaultwarden-0.19.0
+    app.kubernetes.io/name: vaultwarden
+    app.kubernetes.io/instance: vaultwarden-release
+    app.kubernetes.io/version: "1.30.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  serviceName: vaultwarden
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: vaultwarden
+      app.kubernetes.io/name: vaultwarden
+      app.kubernetes.io/instance: vaultwarden-release
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: vaultwarden
+        app.kubernetes.io/name: vaultwarden
+        app.kubernetes.io/instance: vaultwarden-release
+      annotations:
+        checksum/config: 477926414c665edda40ec4ba5e189336f35248e2
+        checksum/secret: 2e6a40e68134bb470cb2952753bd4de99cd0d894
+    spec:
+      
+      containers:
+        - image: docker.io/vaultwarden/server:1.30.1-alpine
+          imagePullPolicy: IfNotPresent
+          name: vaultwarden
+          envFrom:
+            - configMapRef:
+                name: vaultwarden-release
+          env:
+            - name: ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vaultwarden-release
+                  key: ADMIN_TOKEN
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 3012
+              name: websocket
+              protocol: TCP
+          volumeMounts:
+            - name: vaultwarden-data
+              mountPath: /data
+          resources:
+                  {}
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 10
+          readinessProbe:
+            httpGet:
+              path: /alive
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+      serviceAccountName: vaultwarden-svc
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  volumeClaimTemplates:
+    - metadata:
+        name: vaultwarden-data
+        labels:
+            helm.sh/chart: vaultwarden-0.19.0
+            app.kubernetes.io/name: vaultwarden
+            app.kubernetes.io/instance: vaultwarden-release
+            app.kubernetes.io/version: "1.30.1"
+            app.kubernetes.io/managed-by: Helm
+        annotations:
+          meta.helm.sh/release-name: "vaultwarden-release"
+          meta.helm.sh/release-namespace: "vaultwarden"
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 2Gi
+        storageClassName: "nfs-csi"
+---
+# Source: vaultwarden/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vaultwarden-release
+  namespace: vaultwarden
+  labels:
+    app.kubernetes.io/component: vaultwarden
+    helm.sh/chart: vaultwarden-0.19.0
+    app.kubernetes.io/name: vaultwarden
+    app.kubernetes.io/instance: vaultwarden-release
+    app.kubernetes.io/version: "1.30.1"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Request-Id: $req_id";
+    nginx.ingress.kubernetes.io/connection-proxy-header: "keep-alive"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/limit-connections: "25"
+    nginx.ingress.kubernetes.io/limit-rps: "15"
+    nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"
+spec:
+  ingressClassName: "nginx"
+  tls:
+    - hosts:
+        - "vaultwarden.k8s.twy.gmbh"
+      secretName: 
+  rules:
+    - host: "vaultwarden.k8s.twy.gmbh"
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: vaultwarden-release
+              port:
+                name: "http"
+        - path: /notifications/hub
+          pathType: Exact
+          backend:
+            service:
+              name: vaultwarden-release
+              port:
+                name: "websocket"

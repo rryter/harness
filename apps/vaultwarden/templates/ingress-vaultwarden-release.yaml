@@ -1,0 +1,52 @@
+# Source: vaultwarden/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vaultwarden-release
+  namespace: vaultwarden
+  labels:
+    app.kubernetes.io/component: vaultwarden
+    helm.sh/chart: vaultwarden-0.19.0
+    app.kubernetes.io/name: vaultwarden
+    app.kubernetes.io/instance: vaultwarden-release
+    app.kubernetes.io/version: "1.30.1"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Request-Id: $req_id";
+    nginx.ingress.kubernetes.io/connection-proxy-header: "keep-alive"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/limit-connections: "25"
+    nginx.ingress.kubernetes.io/limit-rps: "15"
+    nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"
+spec:
+  ingressClassName: "nginx"
+  tls:
+    - hosts:
+        - "vaultwarden.k8s.twy.gmbh"
+      secretName: 
+  rules:
+    - host: "vaultwarden.k8s.twy.gmbh"
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: vaultwarden-release
+              port:
+                name: "http"
+        - path: /notifications/hub
+          pathType: Exact
+          backend:
+            service:
+              name: vaultwarden-release
+              port:
+                name: "websocket"

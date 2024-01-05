@@ -1,0 +1,12 @@
+domain: https://vaultwarden.k8s.twy.gmbh
+ingress:
+  enabled: true
+  hostname: vaultwarden.k8s.twy.gmbh
+  additionalAnnotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: "nginx"
+  tlsSecret: vaultwarden-tls-secret
+data:
+  name: "vaultwarden-data"
+  size: "2Gi"
+  class: "nfs-csi"
