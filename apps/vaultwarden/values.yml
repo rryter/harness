@@ -1,5 +1,8 @@
 domain: https://vaultwarden.k8s.twy.gmbh
 resourceType: Deployment
+adminToken:
+  existingSecret: "secret-vaultwarden"
+  existingSecretKey: "ADMIN_TOKEN"
 ingress:
   enabled: true
   hostname: vaultwarden.k8s.twy.gmbh
