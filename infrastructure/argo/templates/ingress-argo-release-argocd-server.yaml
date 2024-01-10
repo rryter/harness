@@ -1,0 +1,35 @@
+# Source: argo-cd/templates/argocd-server/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argo-release-argocd-server
+  namespace: "argo"
+  labels:
+    helm.sh/chart: argo-cd-5.52.1
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/instance: argo-release
+    app.kubernetes.io/component: server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: "v2.9.3"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: "argo.k8s.twy.gmbh"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argo-release-argocd-server
+                port:
+                  number: 80
+  tls:
+    - hosts:
+      - argo.k8s.twy.gmbh
+      secretName: argo-k8s-twy-gmbh

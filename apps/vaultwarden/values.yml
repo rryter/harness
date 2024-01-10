@@ -1,4 +1,5 @@
 domain: https://vaultwarden.k8s.twy.gmbh
+resourceType: Deployment
 ingress:
   enabled: true
   hostname: vaultwarden.k8s.twy.gmbh

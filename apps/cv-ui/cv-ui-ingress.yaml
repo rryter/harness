@@ -10,9 +10,15 @@ spec:
     - hosts:
         - reto.k8s.twy.gmbh
       secretName: reto-k8s-twy-gmbh
+    - hosts:
+        - twy.gmbh
+      secretName: twy-gmbh-tls
+    - hosts:
+        - rryter.ch
+      secretName: ryter-ch-tls
   rules:
     - host: reto.k8s.twy.gmbh
-      http:
+      http: &httpRule
         paths:
           - path: "/"
             pathType: Prefix
@@ -21,3 +27,7 @@ spec:
                 name: cv-ui
                 port:
                   number: 80
+    - host: rryter.ch
+      http: *httpRule
+    - host: twy.gmbh
+      http: *httpRule
